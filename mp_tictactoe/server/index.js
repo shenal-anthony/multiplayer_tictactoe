@@ -110,6 +110,26 @@ io.on("connection", (socket) => {
       socket.emit("errorOccurred", "Error while tapping");
     }
   });
+
+  socket.on("winner", async ({ winnerSocketId, roomId }) => {
+    try {
+      let room = await Room.findById(roomId);
+      let player = room.players.find(
+        (player) => player.socketID === winnerSocketId
+      );
+      player.points += 1;
+      room = await room.save();
+
+      if (player.points >= room.maxRounds) {
+        io.to(roomId).emit("gameOver", player);
+      } else {
+        io.to(roomId).emit("pointIncrease", player);
+      }
+    } catch (error) {
+      console.log(error);
+      socket.emit("errorOccurred", "Error while checking winner");
+    }
+  });
 });
 
 mongoose

@@ -82,13 +82,13 @@ class GameMethods {
       if (roomDataProvider.player1.playerType == winner) {
         showGameDialog(context, '${roomDataProvider.player1.nickname} won!');
         socketClient.emit('winner', {
-          'winnerSocketId': roomDataProvider.player1.socketId,
+          'winnerSocketId': roomDataProvider.player1.socketID,
           'roomId': roomDataProvider.roomData['_id'],
         });
       } else {
         showGameDialog(context, '${roomDataProvider.player2.nickname} won!');
         socketClient.emit('winner', {
-          'winnerSocketId': roomDataProvider.player2.socketId,
+          'winnerSocketId': roomDataProvider.player2.socketID,
           'roomId': roomDataProvider.roomData['_id'],
         });
       }
@@ -100,7 +100,7 @@ class GameMethods {
       context,
       listen: false,
     );
-
+    
     for (int i = 0; i < roomDataProvider.displayElements.length; i++) {
       roomDataProvider.updateDisplayElements(i, '');
     }
