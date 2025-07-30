@@ -7,6 +7,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 var server = http.createServer(app);
 const Room = require("./models/room");
+const DB = process.env.MONGO_URI;
 
 // Add CORS configuration for Socket.IO
 var io = require("socket.io")(server, {
@@ -15,8 +16,6 @@ var io = require("socket.io")(server, {
     methods: ["GET", "POST"], // Allowed HTTP methods
   },
 });
-
-const DB = process.env.MONGO_URI;
 
 app.use(express.json());
 
@@ -32,7 +31,7 @@ io.on("connection", (socket) => {
   console.log("A user connected");
   socket.on("createRoom", async ({ nickname }) => {
     console.log(nickname);
-    console.log(socket.id);
+    // console.log(socket.id);
 
     try {
       // room is created
@@ -45,6 +44,7 @@ io.on("connection", (socket) => {
       room.players.push(player);
       room.turn = player;
       room = await room.save();
+      console.log("Room created:", room);
       const roomId = room._id.toString();
 
       socket.join(roomId);
@@ -85,17 +85,19 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Handle player disconnection
   socket.on("tap", async ({ index, roomId, displayElements }) => {
     try {
       let room = await Room.findById(roomId);
 
       let choice = room.turn.playerType;
 
+      // toggle between players
       if (room.turnIndex === 0) {
-        room.turn = room.players[1];
+        room.turn = room.players[1]; // Switch to the second player
         room.turnIndex = 1;
       } else {
-        room.turn = room.players[0];
+        room.turn = room.players[0]; // Switch back to the first player
         room.turnIndex = 0;
       }
       room = await room.save();
@@ -104,6 +106,7 @@ io.on("connection", (socket) => {
         index,
         choice,
         displayElements,
+        room
       });
     } catch (error) {
       console.log(error);

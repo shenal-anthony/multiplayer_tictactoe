@@ -13,18 +13,18 @@ class TictactoeBoard extends StatefulWidget {
 class _TictactoeBoardState extends State<TictactoeBoard> {
   final SocketMethods _socketMethods = SocketMethods();
 
+  @override
+  void initState() {
+    super.initState();
+    _socketMethods.tappedListener(context);
+  }
+
   void tapped(int index, RoomDataProvider roomDataProvider) {
     _socketMethods.tapGrid(
       index,
       roomDataProvider.roomData['_id'],
       roomDataProvider.displayElements,
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _socketMethods.tappedListener(context);
   }
 
   @override
@@ -42,13 +42,12 @@ class _TictactoeBoardState extends State<TictactoeBoard> {
       constraints: BoxConstraints(maxHeight: size.height * 0.7, maxWidth: 500),
       child: AbsorbPointer(
         absorbing:
-            roomDataProvider.roomData?['turn']?['socketID'] !=
+            roomDataProvider.roomData['turn']['socketID'] !=
             _socketMethods.socketClient.id,
         child: GridView.builder(
           itemCount: 9,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            childAspectRatio: 1.0,
           ),
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
